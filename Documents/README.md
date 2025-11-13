@@ -1,6 +1,13 @@
 # Chat Application - CI/CD Pipeline with GitHub Actions
 
+[![GitHub Actions](https://github.com/HARIHARANk2007/cicd-pipeline-automation-/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/HARIHARANk2007/cicd-pipeline-automation-/actions)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://hub.docker.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18-green)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A full-stack chat application with automated CI/CD deployment using GitHub Actions and Docker.
+
+**Live Repository:** https://github.com/HARIHARANk2007/cicd-pipeline-automation-
 
 ## 🚀 Features
 
@@ -23,8 +30,8 @@ A full-stack chat application with automated CI/CD deployment using GitHub Actio
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
-   cd chatapp
+   git clone https://github.com/HARIHARANk2007/cicd-pipeline-automation-.git
+   cd cicd-pipeline-automation-
    ```
 
 2. **Install dependencies**
@@ -75,36 +82,13 @@ docker run -d -p 3000:3000 --name chatapp \
 
 ### Using Docker Compose (Recommended)
 
-Create a `docker-compose.yml` file:
+The repository includes a `docker-compose.yml` file. Simply run:
 
-```yaml
-version: '3.8'
-services:
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/chatapp
-      - SESSION_SECRET=your-secret-key
-    depends_on:
-      - mongo
-
-volumes:
-  mongo-data:
-```
-
-Then run:
 ```bash
 docker-compose up -d
 ```
+
+This will start both MongoDB and the application with proper networking.
 
 ## 🔄 CI/CD Pipeline Setup
 

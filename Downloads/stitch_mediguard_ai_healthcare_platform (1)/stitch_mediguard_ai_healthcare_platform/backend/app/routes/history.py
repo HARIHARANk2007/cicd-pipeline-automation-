@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..models.analysis_history import AnalysisHistory
 from ..models.database import SessionLocal
+from .auth import get_current_user
 
 router = APIRouter()
 
@@ -16,7 +17,10 @@ def get_db():
 
 
 @router.get("/history")
-async def get_history(db: Session = Depends(get_db)):
+async def get_history(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
     rows = db.query(AnalysisHistory).order_by(AnalysisHistory.created_at.desc()).all()
     return [
         {

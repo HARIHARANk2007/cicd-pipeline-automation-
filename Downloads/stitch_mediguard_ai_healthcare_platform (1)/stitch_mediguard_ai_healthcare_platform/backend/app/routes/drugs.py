@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from typing import List
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 import json
+
+from .auth import get_current_user
 
 router = APIRouter()
 
@@ -25,6 +27,7 @@ COMMON_DRUGS = [
     "Ticagrelor", "Tramadol", "Tamsulosin", "Trazodone",
     "Warfarin", "Warfarin Sodium", "Xarelto", "Zoloft"
 ]
+
 
 def search_openfda_drugs(query: str) -> List[str]:
     if len(query) < 2:
@@ -48,25 +51,25 @@ def search_openfda_drugs(query: str) -> List[str]:
         print(f"openFDA search error: {e}")
         return []
 
+
 @router.get("/drugs/search")
-async def search_drugs(q: str = Query(..., description="Query string to search for drugs")):
+async def search_drugs(
+    q: str = Query(..., description="Query string to search for drugs"),
+    current_user: dict = Depends(get_current_user),
+):
     query_clean = q.lower().strip()
     if not query_clean:
         return []
-    
-    # 1. Local matching
+
     local_matches = [d for d in COMMON_DRUGS if d.lower().startswith(query_clean)]
     if len(local_matches) < 10:
         local_substrings = [d for d in COMMON_DRUGS if query_clean in d.lower() and d not in local_matches]
         local_matches.extend(local_substrings)
-        
-    # 2. openFDA matching
+
     fda_matches = search_openfda_drugs(query_clean)
-    
-    # 3. Merge & Deduplicate
+
     seen = set()
     merged = []
-    
     for item in local_matches + fda_matches:
         normalized = item.lower().strip()
         if len(item) > 60:
@@ -74,5 +77,5 @@ async def search_drugs(q: str = Query(..., description="Query string to search f
         if normalized not in seen:
             seen.add(normalized)
             merged.append(item)
-            
+
     return merged[:15]

@@ -13,7 +13,7 @@ print("API Key Found:", GEMINI_API_KEY is not None)
 if GEMINI_API_KEY:
     print(GEMINI_API_KEY[:10])
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.1-flash-lite"
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
@@ -158,6 +158,51 @@ You MUST respond with a single, valid JSON object containing exactly the followi
                 return None
 
             result = json.loads(content_text.strip())
+
+            # Phase 2 — Patient-Specific Risk Scoring
+            # Normalize drugs to lowercase set for matching
+            drug_set = {d.lower().strip() for d in drugs if d}
+
+            # Determine base_risk
+            if "warfarin" in drug_set and "aspirin" in drug_set:
+                base_risk = 72
+            elif "atorvastatin" in drug_set and "clopidogrel" in drug_set:
+                base_risk = 55
+            else:
+                # Use the LLM's suggested riskScore as the base_risk for other combinations
+                base_risk = result.get("riskScore", 50)
+
+            # Apply patient physiology modifiers
+            risk = base_risk
+            if age is not None and age > 65:
+                risk += 10
+
+            # eGFR (kidney) mapping: moderate/severe represent eGFR < 50
+            kidney_val = (kidney or "normal").lower().strip()
+            if kidney_val in ("moderate", "severe"):
+                risk += 15
+
+            # Hepatic (liver) mapping: mild/severe represent Child-Pugh score < 50 (Class B/C)
+            liver_val = (liver or "normal").lower().strip()
+            if liver_val in ("mild", "severe"):
+                risk += 10
+
+            # Cap the final riskScore at 100
+            final_risk = min(max(risk, 0), 100)
+            result["riskScore"] = final_risk
+
+            # Update severity based on the final riskScore
+            if final_risk >= 85:
+                result["severity"] = "Severe"
+            elif final_risk >= 70:
+                result["severity"] = "High"
+            elif final_risk >= 40:
+                result["severity"] = "Moderate"
+            elif final_risk >= 15:
+                result["severity"] = "Minor"
+            else:
+                result["severity"] = "Low"
+
             return result
     except HTTPError as e:
         print(f"LLM Service HTTP Error: {e.code} {e.reason}")

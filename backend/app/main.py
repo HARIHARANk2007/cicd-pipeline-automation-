@@ -5,12 +5,19 @@ from .models.database import initialize_database
 
 app = FastAPI(title="MediGuard AI Backend")
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+import os
+
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "")
+if allowed_origins_str:
+    origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+else:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://mediguard-ai-one.vercel.app",
+    ]
 
 
 app.add_middleware(

@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { explainInteraction } from '@/lib/services'
+import AppShell from '@/components/AppShell'
 
 export default function AIResults() {
   const [data, setData] = useState(null)
@@ -17,10 +18,12 @@ export default function AIResults() {
   }, [])
 
   if (!data) return (
-    <div className="p-6">
-      <h2 className="font-headline-md">No analysis available</h2>
-      <p className="text-on-surface-variant">Run the Interaction Checker and submit to view results here.</p>
-    </div>
+    <AppShell activeRoute="/checker">
+      <div className="p-6">
+        <h2 className="font-headline-md">No analysis available</h2>
+        <p className="text-on-surface-variant">Run the Interaction Checker and submit to view results here.</p>
+      </div>
+    </AppShell>
   )
 
   const { request, response } = data
@@ -223,180 +226,182 @@ ${altSection}
       : 'bg-yellow-100 text-yellow-800'
 
   return (
-    <main className="p-6 max-w-3xl mx-auto space-y-6">
+    <AppShell activeRoute="/checker">
+      <main className="p-6 max-w-3xl mx-auto space-y-6">
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="font-headline-lg">Interaction Analysis</h1>
-        <span className={`px-3 py-1 rounded-full font-semibold text-sm ${sevBadge}`}>
-          {response.severity?.toUpperCase()}
-        </span>
-      </div>
-
-      {/* Drug badges */}
-      <div className="flex flex-wrap gap-2">
-        {drugs.map((d, i) => (
-          <div key={i} className="bg-surface-container-high text-on-surface-variant px-3 py-1.5 rounded-lg border border-outline-variant">{d}</div>
-        ))}
-      </div>
-
-      {/* Risk Index */}
-      <div className="bg-surface p-4 rounded-xl border border-outline-variant">
-        <div className="flex justify-between items-end">
-          <span className="text-sm text-on-surface-variant">AI Risk Index</span>
-          <span className="text-2xl font-bold text-error">{response.riskScore ?? '—'}<span className="text-sm text-on-surface-variant">/100</span></span>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="font-headline-lg">Interaction Analysis</h1>
+          <span className={`px-3 py-1 rounded-full font-semibold text-sm ${sevBadge}`}>
+            {response.severity?.toUpperCase()}
+          </span>
         </div>
-        <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden mt-3">
-          <div className="h-full bg-error transition-all" style={{ width: `${response.riskScore ?? 0}%` }} />
-        </div>
-      </div>
 
-      {/* AI Summary */}
-      <section className="bg-surface border border-outline-variant rounded-xl p-4">
-        <h3 className="font-semibold text-on-surface">AI Summary</h3>
-        <p className="mt-2 text-on-surface">{response.message}</p>
-        {response.explanation && <p className="mt-2 text-sm text-on-surface-variant">{response.explanation}</p>}
-      </section>
-
-      {/* ── Explain Like a Doctor / Patient ─────────────────────────────── */}
-      <section className="bg-gradient-to-br from-[#f3f0ff] to-[#e8f4ff] border border-[#c4b5fd]/40 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-[#7c3aed]">psychology</span>
-          <h3 className="font-semibold text-[#1e293b]">AI-Powered Explanations</h3>
-          <span className="ml-auto text-[10px] uppercase tracking-wider text-[#7c3aed] font-bold bg-[#ede9fe] px-2 py-0.5 rounded-full">New</span>
+        {/* Drug badges */}
+        <div className="flex flex-wrap gap-2">
+          {drugs.map((d, i) => (
+            <div key={i} className="bg-surface-container-high text-on-surface-variant px-3 py-1.5 rounded-lg border border-outline-variant">{d}</div>
+          ))}
         </div>
-        <p className="text-xs text-[#64748b] mb-4">Get the same interaction explained in two different ways — choose your audience.</p>
-        <div className="flex gap-3">
-          <button
-            onClick={() => handleExplain('doctor')}
-            disabled={explainLoading}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#003d9b] text-white text-sm font-semibold rounded-lg hover:bg-[#002a7a] disabled:opacity-60 transition-colors"
-          >
-            <span className="material-symbols-outlined text-[18px]">stethoscope</span>
-            Explain Like a Doctor
-          </button>
-          <button
-            onClick={() => handleExplain('patient')}
-            disabled={explainLoading}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#059669] text-white text-sm font-semibold rounded-lg hover:bg-[#047857] disabled:opacity-60 transition-colors"
-          >
-            <span className="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
-            Explain Like a Patient
-          </button>
-        </div>
-      </section>
 
-      {/* Phase 6 — Alternatives */}
-      {alternatives.length > 0 && (
+        {/* Risk Index */}
+        <div className="bg-surface p-4 rounded-xl border border-outline-variant">
+          <div className="flex justify-between items-end">
+            <span className="text-sm text-on-surface-variant">AI Risk Index</span>
+            <span className="text-2xl font-bold text-error">{response.riskScore ?? '—'}<span className="text-sm text-on-surface-variant">/100</span></span>
+          </div>
+          <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden mt-3">
+            <div className="h-full bg-error transition-all" style={{ width: `${response.riskScore ?? 0}%` }} />
+          </div>
+        </div>
+
+        {/* AI Summary */}
         <section className="bg-surface border border-outline-variant rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-[#7c3aed]">swap_horiz</span>
-            <h3 className="font-semibold text-on-surface">Suggested Therapeutic Alternatives</h3>
-          </div>
-          <div className="space-y-2">
-            {alternatives.map((alt, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-[#f3f0ff] rounded-lg border border-[#c4b5fd]/40">
-                <span className="material-symbols-outlined text-[#7c3aed] text-[18px] mt-0.5 shrink-0">check_circle</span>
-                <span className="text-sm text-[#1e293b]">{alt}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-[#94a3b8] mt-3">Always consult a pharmacist or physician before switching medications.</p>
+          <h3 className="font-semibold text-on-surface">AI Summary</h3>
+          <p className="mt-2 text-on-surface">{response.message}</p>
+          {response.explanation && <p className="mt-2 text-sm text-on-surface-variant">{response.explanation}</p>}
         </section>
-      )}
 
-      {/* Evidence Sources */}
-      <section className="bg-surface border border-outline-variant rounded-xl p-4">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="font-semibold text-on-surface">Evidence Sources</h3>
-          <span className="text-xs uppercase tracking-wider text-on-surface-variant">OpenFDA</span>
-        </div>
-        <div className="mt-4 space-y-3">
-          {sources.length > 0 ? sources.map((source, index) => (
-            <div key={`${source.drug}-${index}`} className="flex items-start gap-3 rounded-lg border border-outline-variant bg-surface-container-low p-3">
-              <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
-              <div>
-                <div className="font-semibold text-on-surface">{source.drug}</div>
-                <div className="text-sm text-on-surface-variant">Section: {source.section}</div>
-              </div>
+        {/* ── Explain Like a Doctor / Patient ─────────────────────────────── */}
+        <section className="bg-gradient-to-br from-[#f3f0ff] to-[#e8f4ff] border border-[#c4b5fd]/40 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="material-symbols-outlined text-[#7c3aed]">psychology</span>
+            <h3 className="font-semibold text-[#1e293b]">AI-Powered Explanations</h3>
+            <span className="ml-auto text-[10px] uppercase tracking-wider text-[#7c3aed] font-bold bg-[#ede9fe] px-2 py-0.5 rounded-full">New</span>
+          </div>
+          <p className="text-xs text-[#64748b] mb-4">Get the same interaction explained in two different ways — choose your audience.</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleExplain('doctor')}
+              disabled={explainLoading}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#003d9b] text-white text-sm font-semibold rounded-lg hover:bg-[#002a7a] disabled:opacity-60 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">stethoscope</span>
+              Explain Like a Doctor
+            </button>
+            <button
+              onClick={() => handleExplain('patient')}
+              disabled={explainLoading}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#059669] text-white text-sm font-semibold rounded-lg hover:bg-[#047857] disabled:opacity-60 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
+              Explain Like a Patient
+            </button>
+          </div>
+        </section>
+
+        {/* Phase 6 — Alternatives */}
+        {alternatives.length > 0 && (
+          <section className="bg-surface border border-outline-variant rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-[#7c3aed]">swap_horiz</span>
+              <h3 className="font-semibold text-on-surface">Suggested Therapeutic Alternatives</h3>
             </div>
-          )) : (
-            <p className="text-sm text-on-surface-variant">No evidence sources were returned for this analysis.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Action buttons */}
-      <section className="flex gap-3">
-        <button onClick={handleDownloadReport} className="bg-[#00B8D9] hover:bg-[#00a3c2] text-white w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors">
-          <span className="material-symbols-outlined text-[20px]">download</span>
-          Download PDF Report
-        </button>
-        <button className="bg-surface border border-[#DFE1E6] w-full py-3 px-4 rounded-xl font-semibold text-on-surface hover:bg-surface-container-high transition-colors">Save</button>
-      </section>
-
-      {/* ── Explain Modal ──────────────────────────────────────────────────── */}
-      {explainMode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-[fadeIn_0.2s_ease]">
-            {/* Modal header */}
-            <div className={`px-6 py-4 flex items-center justify-between ${explainMode === 'doctor' ? 'bg-[#003d9b]' : 'bg-[#059669]'}`}>
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-white text-[24px]">
-                  {explainMode === 'doctor' ? 'stethoscope' : 'sentiment_satisfied'}
-                </span>
-                <div>
-                  <h3 className="text-white font-bold text-base">
-                    {explainMode === 'doctor' ? 'Clinical Explanation' : 'Patient Explanation'}
-                  </h3>
-                  <p className="text-white/70 text-xs">
-                    {explainMode === 'doctor' ? 'Pharmacokinetic & clinical detail' : 'Plain-language, easy to understand'}
-                  </p>
+            <div className="space-y-2">
+              {alternatives.map((alt, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 bg-[#f3f0ff] rounded-lg border border-[#c4b5fd]/40">
+                  <span className="material-symbols-outlined text-[#7c3aed] text-[18px] mt-0.5 shrink-0">check_circle</span>
+                  <span className="text-sm text-[#1e293b]">{alt}</span>
                 </div>
-              </div>
-              <button onClick={closeModal} className="text-white/80 hover:text-white transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            {/* Drug context bar */}
-            <div className="px-6 py-3 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center gap-2 flex-wrap">
-              {drugs.map((d, i) => (
-                <span key={i} className="text-xs font-semibold bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] px-2 py-1 rounded-md">{d}</span>
               ))}
-              <span className="text-xs text-[#94a3b8] ml-1">· Risk: {response.riskScore}/100</span>
             </div>
+            <p className="text-[11px] text-[#94a3b8] mt-3">Always consult a pharmacist or physician before switching medications.</p>
+          </section>
+        )}
 
-            {/* Modal body */}
-            <div className="px-6 py-5 min-h-[140px] flex items-center justify-center">
-              {explainLoading ? (
-                <div className="flex flex-col items-center gap-3 text-[#64748b]">
-                  <span className="material-symbols-outlined text-[32px] animate-spin text-[#003d9b]">progress_activity</span>
-                  <span className="text-sm">Generating {explainMode === 'doctor' ? 'clinical' : 'patient'} explanation...</span>
+        {/* Evidence Sources */}
+        <section className="bg-surface border border-outline-variant rounded-xl p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-semibold text-on-surface">Evidence Sources</h3>
+            <span className="text-xs uppercase tracking-wider text-on-surface-variant">OpenFDA</span>
+          </div>
+          <div className="mt-4 space-y-3">
+            {sources.length > 0 ? sources.map((source, index) => (
+              <div key={`${source.drug}-${index}`} className="flex items-start gap-3 rounded-lg border border-outline-variant bg-surface-container-low p-3">
+                <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
+                <div>
+                  <div className="font-semibold text-on-surface">{source.drug}</div>
+                  <div className="text-sm text-on-surface-variant">Section: {source.section}</div>
                 </div>
-              ) : explainError ? (
-                <div className="flex items-center gap-2 text-red-600">
-                  <span className="material-symbols-outlined">error</span>
-                  <span className="text-sm">{explainError}</span>
-                </div>
-              ) : explainText ? (
-                <p className={`text-[15px] leading-relaxed text-[#1e293b] ${explainMode === 'patient' ? 'text-center' : ''}`}>
-                  {explainText}
-                </p>
-              ) : null}
-            </div>
+              </div>
+            )) : (
+              <p className="text-sm text-on-surface-variant">No evidence sources were returned for this analysis.</p>
+            )}
+          </div>
+        </section>
 
-            {/* Modal footer */}
-            <div className="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between">
-              <p className="text-[11px] text-[#94a3b8]">Generated by Gemini AI · MediGuard v3.0</p>
-              <button onClick={closeModal} className="text-sm font-semibold text-[#475569] hover:text-[#1e293b] border border-[#e2e8f0] rounded-lg px-4 py-2 hover:bg-white transition-colors">
-                Close
-              </button>
+        {/* Action buttons */}
+        <section className="flex gap-3">
+          <button onClick={handleDownloadReport} className="bg-[#00B8D9] hover:bg-[#00a3c2] text-white w-full py-3 px-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors">
+            <span className="material-symbols-outlined text-[20px]">download</span>
+            Download PDF Report
+          </button>
+          <button className="bg-surface border border-[#DFE1E6] w-full py-3 px-4 rounded-xl font-semibold text-on-surface hover:bg-surface-container-high transition-colors">Save</button>
+        </section>
+
+        {/* ── Explain Modal ──────────────────────────────────────────────────── */}
+        {explainMode && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-[fadeIn_0.2s_ease]">
+              {/* Modal header */}
+              <div className={`px-6 py-4 flex items-center justify-between ${explainMode === 'doctor' ? 'bg-[#003d9b]' : 'bg-[#059669]'}`}>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-white text-[24px]">
+                    {explainMode === 'doctor' ? 'stethoscope' : 'sentiment_satisfied'}
+                  </span>
+                  <div>
+                    <h3 className="text-white font-bold text-base">
+                      {explainMode === 'doctor' ? 'Clinical Explanation' : 'Patient Explanation'}
+                    </h3>
+                    <p className="text-white/70 text-xs">
+                      {explainMode === 'doctor' ? 'Pharmacokinetic & clinical detail' : 'Plain-language, easy to understand'}
+                    </p>
+                  </div>
+                </div>
+                <button onClick={closeModal} className="text-white/80 hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              {/* Drug context bar */}
+              <div className="px-6 py-3 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center gap-2 flex-wrap">
+                {drugs.map((d, i) => (
+                  <span key={i} className="text-xs font-semibold bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] px-2 py-1 rounded-md">{d}</span>
+                ))}
+                <span className="text-xs text-[#94a3b8] ml-1">· Risk: {response.riskScore}/100</span>
+              </div>
+
+              {/* Modal body */}
+              <div className="px-6 py-5 min-h-[140px] flex items-center justify-center">
+                {explainLoading ? (
+                  <div className="flex flex-col items-center gap-3 text-[#64748b]">
+                    <span className="material-symbols-outlined text-[32px] animate-spin text-[#003d9b]">progress_activity</span>
+                    <span className="text-sm">Generating {explainMode === 'doctor' ? 'clinical' : 'patient'} explanation...</span>
+                  </div>
+                ) : explainError ? (
+                  <div className="flex items-center gap-2 text-red-600">
+                    <span className="material-symbols-outlined">error</span>
+                    <span className="text-sm">{explainError}</span>
+                  </div>
+                ) : explainText ? (
+                  <p className={`text-[15px] leading-relaxed text-[#1e293b] ${explainMode === 'patient' ? 'text-center' : ''}`}>
+                    {explainText}
+                  </p>
+                ) : null}
+              </div>
+
+              {/* Modal footer */}
+              <div className="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between">
+                <p className="text-[11px] text-[#94a3b8]">Generated by Gemini AI · MediGuard v3.0</p>
+                <button onClick={closeModal} className="text-sm font-semibold text-[#475569] hover:text-[#1e293b] border border-[#e2e8f0] rounded-lg px-4 py-2 hover:bg-white transition-colors">
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+    </AppShell>
   )
 }
 
